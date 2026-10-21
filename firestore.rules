@@ -50,6 +50,8 @@ service cloud.firestore {
                     && request.resource.data.source is string
                     && request.resource.data.source.size() > 0
                     && request.resource.data.source.size() <= 1000
+                    // 一括申請は200件まで
+                    && (!('entries' in request.resource.data) || request.resource.data.entries.size() <= 200)
                     // 1分に3件まで（rate ドキュメントを同じバッチで更新していること）
                     && (isAdmin() ||
                         (getAfter(/databases/$(database)/documents/rate/$(request.auth.uid)).data.lastWrite == request.time
