@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- 共通の関数 ----------
+    function signedIn() {
+      return request.auth != null;
+    }
+    // 管理者 = admins コレクションに「自分のUID」と同じIDのドキュメントがある人
+    // （Firebaseコンソールからだけ作れる。アプリからは書き込めない）
+    function isAdmin() {
+      return signedIn() &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    // 今、BAN中 or タイムアウト中か（書き込みを止めるための判定）
+    function blocked(uid) {
+      let path = /databases/$(database)/documents/bans/$(uid);
+      return exists(path) && (
+        get(path).data.level == 'ban' ||
+        (get(path).data.level == 'timeout' &&
+         request.time < get(path).data.at + duration.value(get(path).data.get('seconds', 0), 's'))
+      );
+    }
+
+    // ---------- 管理者リスト ----------
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // ---------- 公開辞書（承認済み）: 誰でも読める / 書けるのは管理者だけ ----------
+    match /entries/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- お知らせ: 誰でも読める / 書けるのは管理者だけ ----------
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- 申請 ----------
+    match /requests/{id} {
+      allow create: if signedIn()
+                    && !blocked(request.auth.uid)
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.entry is map
+                    && request.resource.data.source is string
+                    && request.resource.data.source.size() > 0
+                    && request.resource.data.source.size() <= 1000
+                    // 1分に3件まで（rate ドキュメントを同じバッチで更新していること）
+                    && (isAdmin() ||
+                        (getAfter(/databases/$(database)/documents/rate/$(request.auth.uid)).data.lastWrite == request.time
+                         && getAfter(/databases/$(database)/documents/rate/$(request.auth.uid)).data.count <= 3));
+      allow read:   if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+                    || (signedIn() && resource.data.uid == request.auth.uid
+                        && resource.data.status == 'pending');
+    }
+
+    // ---------- レート制限用カウンタ（自分の分だけ） ----------
+    match /rate/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.lastWrite == request.time
+        && (
+          (resource == null || request.time > resource.data.windowStart + duration.value(60, 's'))
+            ? (request.resource.data.count == 1 && request.resource.data.windowStart == request.time)
+            : (request.resource.data.count == resource.data.count + 1
+               && request.resource.data.windowStart == resource.data.windowStart)
+        );
+    }
+
+    // ---------- BAN / タイムアウト / キックの状態 ----------
+    //  読める: 本人と管理者 / 管理者は何でも書ける・消せる（=解除）
+    //  本人が書けるのは「スパム検知による自動の段階アップ」だけ（BAN中・TO中は書けない）
+    match /bans/{uid} {
+      function ladderOk(d) {
+        return (d.strikes == 1 && d.level == 'timeout' && d.seconds == 60)
+            || (d.strikes == 2 && d.level == 'timeout' && d.seconds == 180)
+            || (d.strikes == 3 && d.level == 'kick')
+            || (d.strikes == 4 && d.level == 'ban')
+            || (d.strikes >= 5 && d.level == 'ban');
+      }
+      function selfStrike() {
+        return signedIn() && request.auth.uid == uid
+            && !blocked(uid)
+            && request.resource.data.at == request.time
+            && request.resource.data.keys().hasOnly(['strikes','level','seconds','at','reason','auto','ipbanPending'])
+            && ladderOk(request.resource.data);
+      }
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if isAdmin();
+      allow create: if selfStrike() && request.resource.data.strikes == 1;
+      allow update: if selfStrike() && (
+        request.resource.data.strikes == resource.data.strikes + 1 ||
+        (request.resource.data.strikes == 1 && request.time > resource.data.at + duration.value(1, 'd'))
+      );
+    }
+
+    // ---------- BANされたIP（ハッシュのみ）: ログイン中の人は照合のため読める / 書けるのは管理者だけ ----------
+    match /bannedIps/{hash} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- ログイン記録（IP含む）: 読めるのは管理者だけ ----------
+    match /logins/{uid} {
+      allow read, delete: if isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.lastAt == request.time
+        && request.resource.data.keys().hasOnly(['uid','email','name','lastIp','lastIpHash','ipBanHit','ua','lastAt'])
+        && request.resource.data.lastIp.size() <= 64
+        // 連打防止: 前回の記録から30秒以上あけること
+        && (resource == null || request.time > resource.data.lastAt + duration.value(30, 's'));
+    }
+    match /loginLog/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.keys().hasOnly(['uid','email','ip','ipHash','ipBanHit','ua','at'])
+        && request.resource.data.ip.size() <= 64
+        // 同じバッチで logins を更新していること（=30秒制限が効く）
+        && getAfter(/databases/$(database)/documents/logins/$(request.auth.uid)).data.lastAt == request.time;
+    }
+  }
+}
