@@ -8,6 +8,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Japaccent. ジャパクセント</title>
+<script src="firebase-config.js"></script>
 <style>
 :root{
   --bg:#14161a;--bg2:#1b1e24;--bg3:#242932;--fg:#d7dae0;--dim:#7d8590;
@@ -51,8 +52,13 @@ h2.t{font:600 12px var(--mono);color:var(--dim);margin:0;letter-spacing:.04em}
 .tok .cap{font-size:10px;line-height:1;color:var(--dim);margin-top:-1.1em}
 
 /* 旧方式: 上線 + カギ */
-.old{display:inline-block;white-space:nowrap}
-.old .m{display:inline-block;border-top:2px solid transparent;line-height:1.35;padding:0 1px}
+.acc{display:inline-block;white-space:nowrap}
+.new .m{position:relative}
+.fm{color:var(--red);margin-left:1px}
+.m.dv,.m.ns{position:relative}
+.m.dv::after{content:'';position:absolute;left:50%;bottom:-.3em;width:.34em;height:.34em;margin-left:-.17em;border:1.5px solid currentColor;border-radius:50%;opacity:.85;pointer-events:none}
+.m.ns::before{content:'';position:absolute;right:-.06em;top:.28em;width:.26em;height:.26em;border:1.5px solid currentColor;border-radius:50%;pointer-events:none}
+.old .m{position:relative;display:inline-block;border-top:2px solid transparent;line-height:1.35;padding:0 1px}
 .old .m.h{border-top-color:var(--acc)}
 .old .m.d{border-right:2px solid var(--acc)}
 /* 新方式: 下がり目記号 */
@@ -127,7 +133,9 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
   </div>
   <label class="chk"><input type="checkbox" id="optWord">漢字併記</label>
   <label class="chk"><input type="checkbox" id="optKana">かな一致</label>
+  <label class="chk"><input type="checkbox" id="optFlat">平板￣</label>
   <span class="sp"></span>
+  <button id="bBulk">一括追加 (A)</button>
   <button id="bAnn">お知らせ (n)<i id="annCount" hidden></i></button>
   <button id="bMod" hidden>管理 (m)</button>
   <button id="bReq" hidden>申請<i id="reqCount" hidden></i></button>
@@ -172,10 +180,10 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
 <div id="modal" class="ov" hidden>
   <form id="mform" class="box" autocomplete="off" onsubmit="return false">
     <h2 id="mtitle"></h2>
-    <label>表記
-      <input id="f_word" type="text" placeholder="男の子">
+    <label>表記 <span class="hint">表記ゆれはカンマ区切りで全部（先頭が代表）例: 男の子、男のこ、おとこのこ</span>
+      <input id="f_word" type="text" placeholder="男の子、男のこ、おとこのこ">
     </label>
-    <label>アクセント入力 <span class="hint">下がり目に ／（/ でも可）。平板は記号なし。かなは自動でカタカナ化</span>
+    <label>アクセント入力 <span class="hint">／下がり目 · 記号なし=平板 · [3]や3で番号指定 · (キ)無声化 · ガ゜鼻濁音（ガ* でも可）</span>
       <input id="f_input" type="text" placeholder="オトコ／ノコ" spellcheck="false">
     </label>
     <div id="f_prev"></div>
@@ -188,8 +196,8 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
     <label>許容アクセント <span class="hint">カンマ区切り・同じ記法 例: オ／トコノコ, オトコノコ</span>
       <input id="f_allowed" type="text">
     </label>
-    <label>旧アクセント履歴 <span class="hint">1行1件「年: 記法」例: 1943: オトコ／ノコ</span>
-      <textarea id="f_hist" rows="3" spellcheck="false"></textarea>
+    <label>旧アクセント履歴 <span class="hint">「年: 記法」。複数は ; 区切り（Enterは次の欄へ、改行は Shift+Enter）</span>
+      <textarea id="f_hist" rows="2" spellcheck="false"></textarea>
     </label>
     <label>備考
       <input id="f_note" type="text">
@@ -200,6 +208,27 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
       <button type="button" id="b_cancel">キャンセル (Esc)</button>
       <button type="button" id="b_local">ローカル保存 (Ctrl+S)</button>
       <button type="button" id="b_primary" class="pri"></button>
+    </div>
+  </form>
+</div>
+
+<!-- 一括追加モーダル -->
+<div id="bmodal" class="ov" hidden>
+  <form class="box" autocomplete="off" onsubmit="return false">
+    <h2>一括追加</h2>
+    <label>出典 <span class="hint">（全行に付きます。申請・公開登録は必須）</span>
+      <input id="b_source" type="text">
+    </label>
+    <label>1行1語 <span class="hint">「表記 , 記法 , メモ(任意)」。区切りは Tab・カンマ・| ・空白。表記ゆれは ; 区切り。記法は <b>ハシ,2</b> のように番号でもOK。# で始まる行は無視</span>
+      <textarea id="b_text" rows="10" class="mono" spellcheck="false" placeholder="男の子;男のこ;おとこのこ,オトコ／ノコ&#10;箸,ハシ,1,食事の道具&#10;橋,ハシ[2]&#10;好き,(ス)キ／&#10;鏡,カガ゜ミ／"></textarea>
+    </label>
+    <div id="b_prev" style="background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:8px 12px;font-size:16px;line-height:1.9;min-height:44px"></div>
+    <p class="dim" style="font-size:11px;margin:0">申請・公開登録したデータは WTFPL で公開されます。出典のない／他者の著作物の丸写しは不可。</p>
+    <div class="btns">
+      <span class="dim" style="margin-right:auto;font-size:12px">Ctrl+Enter: 確定 / Esc: 閉じる</span>
+      <button type="button" id="bb_cancel">キャンセル (Esc)</button>
+      <button type="button" id="bb_local">ローカルに追加 (Ctrl+S)</button>
+      <button type="button" id="bb_primary" class="pri"></button>
     </div>
   </form>
 </div>
@@ -222,11 +251,11 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
    Firebase 設定 — README の手順で自分のプロジェクトの値に置き換えてください。
    (Web の apiKey は公開されても問題ありません。守るのは Firestore ルールです)
    ===================================================================== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCeeUPyk7DcAn6zaXvLQp8DcxaKs3qBqE0",
-  authDomain: "japacsent.firebaseapp.com",
-  projectId: "japacsent",
-  appId: "1:315610612190:web:7c9a1ce9aa83e42f909d4f",
+const FIREBASE_CONFIG = window.JAPACCENT_FIREBASE || {   // ← 設定は firebase-config.js に書く（この HTML は丸ごと差し替えてOK）
+  apiKey: "AIzaSyCeeUPyk7DcAn6zaXvLQp8DcxaKs3qBqE0",
+  authDomain: "japacsent.firebaseapp.com",
+  projectId: "japacsent",
+  appId: "1:315610612190:web:7c9a1ce9aa83e42f909d4f",
 };
 const FIREBASE_VERSION = "10.12.2";
 
@@ -252,18 +281,53 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');
 
 /* ---------- アクセント記法のパース ---------- */
 /* 「オトコ／ノコ」→ reading=オトコノコ, drop_position=3 / 「サクラ」→ flat */
+const TO_VOICED={カ:'ガ',キ:'ギ',ク:'グ',ケ:'ゲ',コ:'ゴ'},NASAL_BASE={ガ:'カ',ギ:'キ',グ:'ク',ゲ:'ケ',ゴ:'コ'};
+const CIRCLED='⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
+const moraText=(m,nasal)=>nasal?(NASAL_BASE[m[0]]||m[0])+m.slice(1):m;   // 鼻濁音は ガ→カ に直して、CSSで右上に小さな○を付ける（フォント差を避けるため）
+/* 記法:  ／=下がり目  (キ)=母音無声化  ガ゜(または ガ* / カ゜)=鼻濁音  末尾の [3] や 3 = アクセント型の番号（0=平板） */
 function parseInput(raw){
-  const s=toKata(String(raw||'').replace(SLASH_RE,'／').replace(/\s+/g,''));
-  const parts=s.split('／');
-  if(parts.length>2)return{error:'／ は1つだけ'};
-  const reading=parts.join('');
-  if(!reading)return{error:'読みを入力してください'};
-  if(!/^[ァ-ヴー]+$/.test(reading))return{error:'カナ（と／）だけで入力してください'};
-  if(parts.length===1)return{reading,accent_type:'flat',drop_position:0,input_str:reading};
-  const all=moras(reading),head=moras(parts[0]),n=head.length;
-  if(n===0)return{error:'／ の前に1音以上必要です'};
-  if(head.join('')!==all.slice(0,n).join(''))return{error:'拗音の途中には置けません'};
-  return{reading,accent_type:'drop',drop_position:n,input_str:s};
+  let s=String(raw||'').replace(SLASH_RE,'／').replace(/\s+/g,'');
+  s=s.replace(/[（〔]/g,'(').replace(/[）〕]/g,')').replace(/[゚ﾟ°*＊゜]/g,'゜');
+  let num=null;
+  const cm=s.match(/[⓪①-⑳]$/);
+  if(cm){num=CIRCLED.indexOf(cm[0]);s=s.slice(0,-1)}
+  else{const m=s.match(/[\[［【(]?([0-9０-９]{1,2})[\]］】)]?$/);if(m){num=+m[1].replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));s=s.slice(0,m.index)}}
+  s=toKata(s);
+  const ms=[];let dev=false,slashAt=-1,justSlash=false;
+  for(const c of s){
+    if(c==='('){if(dev)return{error:'( が入れ子です'};dev=true;continue}
+    if(c===')'){if(!dev)return{error:') が多すぎます'};dev=false;continue}
+    if(c==='／'){if(slashAt>=0)return{error:'／ は1つだけ'};if(!ms.length)return{error:'／ の前に1音以上必要です'};slashAt=ms.length;justSlash=true;continue}
+    if(c==='゜'){
+      const l=ms[ms.length-1];if(!l||justSlash)return{error:'゜（鼻濁音）の前にカ行・ガ行の音が必要です'};
+      const f=l.t[0];
+      if(TO_VOICED[f])l.t=TO_VOICED[f]+l.t.slice(1);else if(!NASAL_BASE[f])return{error:'鼻濁音（゜）はカ行・ガ行だけです'};
+      l.nasal=true;continue;
+    }
+    if(!/[ァ-ヴー]/.test(c))return{error:`使えない文字: ${c}`};
+    if(SMALL.includes(c)){const l=ms[ms.length-1];if(!l||justSlash)return{error:'拗音の途中には置けません'};l.t+=c;continue}
+    ms.push({t:c,dev,nasal:false});justSlash=false;
+  }
+  if(dev)return{error:') が足りません'};
+  if(!ms.length)return{error:'読みを入力してください'};
+  if(num!==null&&slashAt>=0)return{error:'／ と番号は同時に使えません'};
+  let drop=0;
+  if(slashAt>=0)drop=slashAt;else if(num!==null){if(num>ms.length)return{error:`番号は ${ms.length} 以下にしてください`};drop=num}
+  const r={reading:ms.map(m=>m.t).join(''),accent_type:drop?'drop':'flat',drop_position:drop,
+    devoiced:ms.map((m,i)=>m.dev?i+1:0).filter(Boolean),nasal:ms.map((m,i)=>m.nasal?i+1:0).filter(Boolean)};
+  r.input_str=buildInput(r);
+  return r;
+}
+function buildInput(r){
+  const ms=moras(r.reading),dv=new Set(r.devoiced||[]),ns=new Set(r.nasal||[]);let out='',open=false;
+  ms.forEach((m,i)=>{
+    const d=dv.has(i+1);
+    if(d&&!open){out+='(';open=true}
+    out+=m+(ns.has(i+1)?'゜':'');
+    if(open&&(!dv.has(i+2)||i+1===r.drop_position)){out+=')';open=false}
+    if(r.accent_type==='drop'&&i+1===r.drop_position)out+='／';
+  });
+  return out;
 }
 const insertSlash=(reading,n)=>{const m=moras(reading);return m.slice(0,n).join('')+'／'+m.slice(n).join('')};
 const kindOf=e=>{if(e.accent_type!=='drop')return'平板';const n=moras(e.reading).length;return e.drop_position===1?'頭高':e.drop_position===n?'尾高':'中高'};
@@ -272,16 +336,18 @@ const kindOf=e=>{if(e.accent_type!=='drop')return'平板';const n=moras(e.readin
 function norm(raw){
   if(!raw||typeof raw!=='object')return null;
   let src=raw.input_str;
-  if(!src)src=(raw.accent_type==='drop'&&raw.drop_position>0)?insertSlash(toKata(raw.reading||''),raw.drop_position):(raw.reading||'');
+  if(!src){src=raw.reading||'';if(raw.accent_type==='drop'&&raw.drop_position>0)src=insertSlash(toKata(src),raw.drop_position)}
   const p=parseInput(src);
   if(p.error||!String(raw.word||'').trim())return null;
   const fix=a=>(Array.isArray(a)?a:[]).map(x=>{const q=parseInput(x);return q.error?String(x):q.input_str});
   const hist={};
   if(raw.old_accent_history&&typeof raw.old_accent_history==='object')for(const[k,v]of Object.entries(raw.old_accent_history)){const q=parseInput(v);hist[k]=q.error?String(v):q.input_str}
   const word=String(raw.word).trim();
+  const variants=[...new Set((Array.isArray(raw.variants)?raw.variants:[]).map(x=>String(x).trim()).filter(x=>x&&x!==word))];
   return{
     id:String(raw.id||word+'|'+p.reading).replace(/\//g,'_'),
-    word,reading:p.reading,accent_type:p.accent_type,drop_position:p.drop_position,input_str:p.input_str,
+    word,variants,reading:p.reading,accent_type:p.accent_type,drop_position:p.drop_position,input_str:p.input_str,
+    devoiced:p.devoiced,nasal:p.nasal,
     allowed_accents:fix(raw.allowed_accents),
     homophones_note:String(raw.homophones_note||''),
     old_accent_history:hist,
@@ -289,20 +355,24 @@ function norm(raw){
     note:String(raw.note||'')
   };
 }
-const toDoc=e=>({word:e.word,reading:e.reading,accent_type:e.accent_type,drop_position:e.drop_position,input_str:e.input_str,allowed_accents:e.allowed_accents,homophones_note:e.homophones_note,old_accent_history:e.old_accent_history,source:e.source,note:e.note});
+const toDoc=e=>({word:e.word,variants:e.variants||[],reading:e.reading,accent_type:e.accent_type,drop_position:e.drop_position,input_str:e.input_str,allowed_accents:e.allowed_accents,homophones_note:e.homophones_note,old_accent_history:e.old_accent_history,source:e.source,note:e.note});
 
 /* ---------- アクセント描画 ---------- */
 function accentHTML(e,style=state.style){
   const ms=moras(e.reading),d=e.drop_position,drop=e.accent_type==='drop';
+  const dv=new Set(e.devoiced||[]),ns=new Set(e.nasal||[]);
+  const mk=(i,extra='')=>`<span class="m${dv.has(i+1)?' dv':''}${ns.has(i+1)?' ns':''}${extra}">${esc(moraText(ms[i],ns.has(i+1)))}</span>`;
   if(style==='new'){
-    if(!drop)return esc(e.reading);
-    return esc(ms.slice(0,d).join(''))+'<b class="dm">＼</b>'+esc(ms.slice(d).join(''));
+    let h='';
+    ms.forEach((m,i)=>{h+=mk(i);if(drop&&i+1===d)h+='<b class="dm">＼</b>'});
+    if(!drop&&state.flatMark)h+='<span class="fm">￣</span>';
+    return`<span class="acc new">${h}</span>`;
   }
   const hi=new Set();
   if(!drop){for(let i=1;i<ms.length;i++)hi.add(i)}
   else if(d===1)hi.add(0);
   else for(let i=1;i<d;i++)hi.add(i);
-  return'<span class="old">'+ms.map((m,i)=>`<span class="m${hi.has(i)?' h':''}${drop&&i===d-1?' d':''}">${esc(m)}</span>`).join('')+'</span>';
+  return'<span class="acc old">'+ms.map((m,i)=>mk(i,`${hi.has(i)?' h':''}${drop&&i===d-1?' d':''}`)).join('')+'</span>';
 }
 function accentFromStr(str,style){const p=parseInput(str);return p.error?`<span class="dim">${esc(str)}</span>`:accentHTML(p,style)}
 
@@ -327,7 +397,7 @@ const logHistory=(action,id,before,after)=>DB.put('history',{ts:Date.now(),actio
 const state={
   style:lsGet('style')==='new'?'new':'old',
   showWord:lsGet('showWord')!=='0',
-  kana:lsGet('kana')!=='0',
+  kana:lsGet('kana')!=='0',flatMark:lsGet('flatMark')!=='0',
   q:'',selId:null,mode:'NORMAL'
 };
 let pub=[],cloud=[],local=[],base=[],merged=[],filtered=[],index=new Map(),maxLen=1;
@@ -349,6 +419,7 @@ function rebuild(){
     const keys=new Set();
     const kanjiWord=/[^ぁ-ゖァ-ヺー・\s]/.test(e.word);
     if(kanjiWord||state.kana)keys.add(toHira(e.word));
+    (e.variants||[]).forEach(v=>keys.add(toHira(v)));
     if(state.kana)keys.add(toHira(e.reading));
     for(const k of keys){if(!k)continue;if(!index.has(k))index.set(k,[]);index.get(k).push(e);maxLen=Math.max(maxLen,k.length)}
   }
@@ -364,7 +435,7 @@ function renderOut(){
     if(!hit){html+=esc(text[i]);i++;continue}
     const e=hit.c[(choice.get(hit.k)||0)%hit.c.length];
     const chunk=text.substr(i,hit.L);
-    const cap=state.showWord&&toHira(e.word)!==toHira(e.reading)?`<small class="cap">${esc(chunk)}</small>`:'';
+    const cap=state.showWord&&toHira(chunk)!==toHira(e.reading)?`<small class="cap">${esc(chunk)}</small>`:'';
     const tip=`${e.word} [${kindOf(e)}${e.drop_position||''}]${hit.c.length>1?`  (${hit.c.length}候補: クリックで切替)`:''}${e.homophones_note?' / '+e.homophones_note:''}`;
     html+=`<span class="tok${hit.c.length>1?' multi':''}" data-k="${esc(hit.k)}" title="${esc(tip)}">${accentHTML(e)}${cap}</span>`;
     i+=hit.L;hits++;
@@ -376,13 +447,13 @@ function renderOut(){
 /* ---------- 一覧 ---------- */
 function applyFilter(){
   const q=toHira(state.q.trim().toLowerCase());
-  filtered=q?merged.filter(e=>toHira((e.word+' '+e.reading+' '+e.homophones_note+' '+e.note).toLowerCase()).includes(q)):merged;
+  filtered=q?merged.filter(e=>toHira((e.word+' '+(e.variants||[]).join(' ')+' '+e.reading+' '+e.homophones_note+' '+e.note).toLowerCase()).includes(q)):merged;
   if(!filtered.some(e=>e.id===state.selId))state.selId=filtered[0]?.id??null;
 }
 function renderList(){
   applyFilter();
   const LIM=600,rows=filtered.slice(0,LIM).map(e=>
-    `<div class="row${e.id===state.selId?' sel':''}" data-id="${esc(e.id)}"><span>${esc(e.word)}</span><span>${accentHTML(e)}</span><span class="k">${kindOf(e)}${e.drop_position||''}</span><span class="badge ${e._layer}">${e._layer}</span></div>`);
+    `<div class="row${e.id===state.selId?' sel':''}" data-id="${esc(e.id)}"><span>${esc(e.word)}${e.variants.length?` <span class="dim" style="font-size:11px">+${e.variants.length}</span>`:''}</span><span>${accentHTML(e)}</span><span class="k">${kindOf(e)}${e.drop_position||''}</span><span class="badge ${e._layer}">${e._layer}</span></div>`);
   $('#list').innerHTML=rows.join('')+(filtered.length>LIM?`<div class="row dim">… 他 ${filtered.length-LIM} 件（検索で絞り込み）</div>`:'')||'<div class="row dim">該当なし — a で追加</div>';
   $('#stCount').textContent=`${filtered.length}/${merged.length} 語`;
   const sel=$('#list .row.sel');if(sel)sel.scrollIntoView({block:'nearest'});
@@ -399,6 +470,8 @@ function renderDetail(){
     <span>旧方式</span><span class="big">${accentHTML(e,'old')}</span>
     <span>新方式</span><span class="big">${accentHTML(e,'new')}</span>
     <span>入力記法</span><span class="mono">${esc(e.input_str)}</span>
+    ${e.variants.length?`<span>表記ゆれ</span><span>${esc(e.variants.join('、'))}</span>`:''}
+    ${e.devoiced.length||e.nasal.length?`<span>音声</span><span>${e.devoiced.length?`無声化: ${e.devoiced.join(',')}音目 `:''}${e.nasal.length?`鼻濁音: ${e.nasal.join(',')}音目`:''}</span>`:''}
     ${allowed?`<span>許容</span><span>${allowed}</span>`:''}
     ${e.homophones_note?`<span>同音異義</span><span>${esc(e.homophones_note)}</span>`:''}
     ${hist?`<span>旧アクセント</span><span>${hist}</span>`:''}
@@ -429,7 +502,7 @@ const FIELDS=['f_word','f_input','f_source','f_homo','f_allowed','f_hist','f_not
 function openModal(mode,target,prefillWord){
   modal.mode=mode;modal.target=target;
   $('#mtitle').textContent=mode==='edit'?`編集: ${target.word}`:'新規アクセント追加';
-  $('#f_word').value=target?target.word:(prefillWord||'');
+  $('#f_word').value=target?[target.word,...target.variants].join('、'):(prefillWord||'');
   $('#f_input').value=target?target.input_str:'';
   $('#f_source').value=target?target.source:'';
   $('#f_homo').value=target?target.homophones_note:'';
@@ -447,19 +520,19 @@ function openModal(mode,target,prefillWord){
 function closeModal(){$('#modal').hidden=true;modal.target=null;document.activeElement?.blur();idleMode()}
 function updatePreview(){
   const v=$('#f_input').value,box=$('#f_prev');
-  if(!v){box.innerHTML='<span class="dim" style="font-size:13px">例: オトコ／ノコ（3音目の後に下がり目） / サクラ（平板）</span>';return}
+  if(!v){box.innerHTML='<span class="dim" style="font-size:13px">例: オトコ／ノコ · サクラ（平板） · (ス)キ／（無声化） · カガ゜ミ／（鼻濁音） · ハシ[2]（番号）</span>';return}
   const p=parseInput(v);
   if(p.error){box.innerHTML=`<span class="err">${esc(p.error)}</span>`;return}
-  box.innerHTML=`${accentHTML(p,'old')}　${accentHTML(p,'new')}<span class="meta">${kindOf(p)} · ${moras(p.reading).length}音 · drop=${p.drop_position}</span>`;
+  box.innerHTML=`${accentHTML(p,'old')}　${accentHTML(p,'new')}<span class="meta">${kindOf(p)} · ${moras(p.reading).length}音 · drop=${p.drop_position}${p.devoiced.length?` · 無声化${p.devoiced.join(',')}`:''}${p.nasal.length?` · 鼻濁音${p.nasal.join(',')}`:''}</span>`;
 }
 function fixInputField(ev){
   if(ev.isComposing)return;
-  const el=ev.target,v=el.value,f=toKata(v.replace(SLASH_RE,'／'));
+  const el=ev.target,v=el.value,f=toKata(v.replace(SLASH_RE,'／').replace(/[゚ﾟ°*＊]/g,'゜'));
   if(f!==v){const s=el.selectionStart;el.value=f;try{el.setSelectionRange(s,s)}catch{}}
   updatePreview();
 }
 function collect(needSource){
-  const word=$('#f_word').value.trim(),p=parseInput($('#f_input').value);
+  const words=$('#f_word').value.split(/[,、，;；|]/).map(x=>x.trim()).filter(Boolean),word=words[0]||'',variants=words.slice(1),p=parseInput($('#f_input').value);
   const fail=m=>{toast(m);return null};
   if(!word)return fail('表記を入力してください');
   if(p.error)return fail('アクセント: '+p.error);
@@ -468,11 +541,11 @@ function collect(needSource){
   const allowed=[];
   for(const s of $('#f_allowed').value.split(/[,、]/).map(x=>x.trim()).filter(Boolean)){const q=parseInput(s);if(q.error)return fail('許容アクセント: '+q.error);allowed.push(q.input_str)}
   const hist={};
-  for(const line of $('#f_hist').value.split('\n').map(x=>x.trim()).filter(Boolean)){
+  for(const line of $('#f_hist').value.split(/\n|;|；/).map(x=>x.trim()).filter(Boolean)){
     const m=line.match(/^(\d{3,4})\s*[:：]\s*(.+)$/);if(!m)return fail('履歴は「年: 記法」の形式で');
     const q=parseInput(m[2]);if(q.error)return fail(`履歴 ${m[1]}: ${q.error}`);hist[m[1]]=q.input_str;
   }
-  return{word,input_str:p.input_str,source,homophones_note:$('#f_homo').value.trim(),allowed_accents:allowed,old_accent_history:hist,note:$('#f_note').value.trim()};
+  return{word,variants,input_str:p.input_str,source,homophones_note:$('#f_homo').value.trim(),allowed_accents:allowed,old_accent_history:hist,note:$('#f_note').value.trim()};
 }
 async function saveLocal(){
   const r=collect(false);if(!r)return;
@@ -481,6 +554,21 @@ async function saveLocal(){
   const before=local.find(x=>x.id===id)||null;
   await DB.put('local',e);await logHistory(before?'edit':'add',id,before,e);
   local=await DB.all('local');closeModal();state.selId=id;refresh();toast('ローカルに保存しました');
+}
+async function sendRequest(payload){
+  const{doc,getDoc,collection,writeBatch,serverTimestamp}=FB.m;
+  // 1分あたり3件まで。超えたらスパム扱い（段階的に制限）。ルール側にも同じ上限があります
+  const rref=doc(FB.db,'rate',FB.user.uid),rs=await getDoc(rref),rd=rs.exists()?rs.data():null;
+  const inWin=rd&&rd.windowStart&&Date.now()-rd.windowStart.toMillis()<60000,count=inWin?rd.count:0;
+  if(count>=3){await reportSpam();return false}
+  const b=writeBatch(FB.db);
+  b.set(rref,inWin?{count:count+1,windowStart:rd.windowStart,lastWrite:serverTimestamp()}:{count:1,windowStart:serverTimestamp(),lastWrite:serverTimestamp()});
+  b.set(doc(collection(FB.db,'requests')),{
+    ...payload,uid:FB.user.uid,email:FB.user.email||'',name:FB.user.displayName||'',
+    status:'pending',createdAt:serverTimestamp()
+  });
+  await b.commit();
+  return true;
 }
 async function primarySubmit(){
   const r=role();
@@ -494,23 +582,66 @@ async function primarySubmit(){
       await setDoc(doc(FB.db,'entries',id),{...toDoc(e),updatedAt:serverTimestamp(),updatedBy:FB.user.uid});
       closeModal();state.selId=id;toast('公開辞書に登録しました');
     }else{
-      const{doc,getDoc,collection,writeBatch,serverTimestamp}=FB.m;
-      // 1分あたり3件まで。超えたらスパム扱い（段階的に制限）。ルール側にも同じ上限があります
-      const rref=doc(FB.db,'rate',FB.user.uid),rs=await getDoc(rref),rd=rs.exists()?rs.data():null;
-      const inWin=rd&&rd.windowStart&&Date.now()-rd.windowStart.toMillis()<60000,count=inWin?rd.count:0;
-      if(count>=3){closeModal();await reportSpam();return}
-      const b=writeBatch(FB.db);
-      b.set(rref,inWin?{count:count+1,windowStart:rd.windowStart,lastWrite:serverTimestamp()}:{count:1,windowStart:serverTimestamp(),lastWrite:serverTimestamp()});
-      b.set(doc(collection(FB.db,'requests')),{
-        kind:modal.mode==='edit'?'edit':'add',targetId:modal.mode==='edit'?modal.target.id:'',
-        entry:toDoc(e),source:e.source,note:e.note,
-        uid:FB.user.uid,email:FB.user.email||'',name:FB.user.displayName||'',
-        status:'pending',createdAt:serverTimestamp()
-      });
-      await b.commit();
-      closeModal();toast('申請しました。承認をお待ちください');
+      const ok=await sendRequest({kind:modal.mode==='edit'?'edit':'add',targetId:modal.mode==='edit'?modal.target.id:'',entry:toDoc(e),source:e.source,note:e.note});
+      closeModal();if(ok)toast('申請しました。承認をお待ちください');
     }
   }catch(err){console.error(err);toast('送信に失敗: '+(err.code||err.message))}
+}
+
+/* ---------- 一括追加 ---------- */
+function parseBulkLine(line){
+  line=line.trim();if(!line||line.startsWith('#'))return null;
+  let f=line.split(/\t|,|，|\|/).map(x=>x.trim());
+  if(f.length===1)f=line.split(/\s+/);
+  if(f.length<2)return{error:'表記と記法を区切ってください'};
+  const[w,acc,...rest]=f;let input=acc,memo;
+  if(rest.length&&/^[\[［【]?\d{1,2}[\]］】]?$/.test(rest[0])){input=acc+'['+rest[0].replace(/\D/g,'')+']';memo=rest.slice(1).join(' ')}
+  else memo=rest.join(' ');
+  const p=parseInput(input);if(p.error)return{error:`${w}: ${p.error}`};
+  const words=w.split(/[;；]/).map(x=>x.trim()).filter(Boolean);
+  if(!words.length)return{error:'表記が空です'};
+  return{entry:{word:words[0],variants:words.slice(1),input_str:p.input_str,homophones_note:memo}};
+}
+function bulkParse(){
+  const ok=[],bad=[];
+  $('#b_text').value.split('\n').forEach((ln,i)=>{const r=parseBulkLine(ln);if(!r)return;if(r.error)bad.push(`${i+1}行目: ${r.error}`);else ok.push(r.entry)});
+  return{ok,bad};
+}
+function bulkPreview(){
+  const{ok,bad}=bulkParse();
+  $('#b_prev').innerHTML=`<div>OK <b>${ok.length}</b> 件 / エラー <b class="st-rejected">${bad.length}</b> 件</div>`+
+    bad.slice(0,6).map(x=>`<div class="st-rejected" style="font-size:12px">${esc(x)}</div>`).join('')+
+    ok.slice(0,3).map(e=>`<div>${esc(e.word)}　${accentFromStr(e.input_str,state.style)}</div>`).join('');
+}
+function openBulk(){
+  $('#b_text').value='';$('#b_prev').innerHTML='<span class="dim" style="font-size:13px">1行1語。例）男の子;男のこ,オトコ／ノコ　／　箸,ハシ,1　／　好き,(ス)キ／</span>';
+  const r=role();
+  $('#bb_primary').textContent=r==='admin'?'まとめて公開登録 (Ctrl+Enter)':r==='user'?'まとめて申請 (Ctrl+Enter)':'ローカルに追加 (Ctrl+Enter)';
+  $('#bb_local').hidden=r==='guest';
+  $('#bmodal').hidden=false;setMode('INSERT');$('#b_source').focus();
+}
+function closeBulk(){$('#bmodal').hidden=true;document.activeElement?.blur();idleMode()}
+async function bulkSave(mode){
+  const{ok,bad}=bulkParse();
+  if(bad.length)return toast(`エラーが ${bad.length} 件あります。直してください`);
+  if(!ok.length)return toast('追加する行がありません');
+  const r=role(),source=$('#b_source').value.trim();
+  if(mode==='primary'&&r!=='guest'&&!source)return toast('出典は必須です');
+  const list=ok.map(x=>norm({...x,id:newId(),source})).filter(Boolean);
+  try{
+    if(mode==='local'||r==='guest'){
+      for(const e of list){await DB.put('local',e);await logHistory('add',e.id,null,e)}
+      local=await DB.all('local');closeBulk();refresh();return toast(`ローカルに ${list.length} 件追加しました`);
+    }
+    if(r==='admin'){
+      const{doc,writeBatch,serverTimestamp}=FB.m;
+      for(let i=0;i<list.length;i+=400){const b=writeBatch(FB.db);list.slice(i,i+400).forEach(e=>b.set(doc(FB.db,'entries',e.id),{...toDoc(e),updatedAt:serverTimestamp(),updatedBy:FB.user.uid}));await b.commit()}
+      closeBulk();return toast(`${list.length} 件を公開辞書に登録しました`);
+    }
+    if(list.length>200)return toast('一度に申請できるのは200件までです');
+    const sent=await sendRequest({kind:'bulk',targetId:'',entry:{...toDoc(list[0]),word:`一括 ${list.length}件`},entries:list.map(toDoc),source,note:''});
+    closeBulk();if(sent)toast(`${list.length} 件をまとめて申請しました`);
+  }catch(err){console.error(err);toast('失敗: '+(err.code||err.message))}
 }
 
 /* ---------- 削除 ---------- */
@@ -550,6 +681,7 @@ function openHelp(){
   <tr><td><kbd>j</kbd> <kbd>k</kbd></td><td>辞書リスト 下/上</td></tr>
   <tr><td><kbd>gg</kbd> <kbd>G</kbd></td><td>先頭 / 末尾</td></tr>
   <tr><td><kbd>a</kbd></td><td>新規追加（結果欄で語を選択してから押すと表記に入る）</td></tr>
+  <tr><td><kbd>A</kbd></td><td>一括追加（表記と記法を何行も貼り付け）</td></tr>
   <tr><td><kbd>e</kbd></td><td>選択中を編集</td></tr>
   <tr><td><kbd>d</kbd></td><td>選択中を削除（<kbd>y</kbd>で確定）</td></tr>
   <tr><td><kbd>/</kbd></td><td>辞書内検索（<kbd>Enter</kbd>でリストへ）</td></tr>
@@ -562,7 +694,7 @@ function openHelp(){
   <tr><td><kbd>:</kbd></td><td>コマンドライン（<span class="mono">:help</span> <span class="mono">:set style=new</span> …何か隠れているかも）</td></tr>
   <tr><td><kbd>Esc</kbd></td><td>閉じる / ノーマルモードへ（検索は2回で解除）</td></tr>
   <tr><td colspan="2" class="dim">モーダル内: <kbd>Enter</kbd>次の欄 · <kbd>Ctrl+Enter</kbd>確定 · <kbd>Ctrl+S</kbd>ローカル保存</td></tr>
-  <tr><td colspan="2" class="dim">記法: <span class="mono">オトコ／ノコ</span>（／=下がり目）, <span class="mono">サクラ</span>（平板）</td></tr></table>`});
+  <tr><td colspan="2" class="dim">記法: <span class="mono">オトコ／ノコ</span>（／=下がり目） · <span class="mono">サクラ</span>（平板） · <span class="mono">ハシ[2]</span>（番号） · <span class="mono">(ス)キ／</span>（無声化） · <span class="mono">カガ゜ミ／</span>（鼻濁音。ガ* でも可）</td></tr></table>`});
 }
 async function openHistory(){
   const h=(await DB.all('history')).sort((a,b)=>b.n-a.n).slice(0,200);
@@ -579,7 +711,7 @@ function openRequests(){
   const admin=FB.isAdmin;
   openPanel({title:admin?'申請一覧（管理者）':'自分の申請',list:true,hint:admin?'j/k 移動 · y 承認 · n 却下 · x 削除':'j/k 移動 · x 取下げ(未承認のみ)',
     getItems:()=>FB.requests,
-    render:r=>{const e=r.entry||{};return`<div><span class="st-${esc(r.status)}">[${esc(r.status)}]</span> <b>${esc(e.word)}</b> ${e.input_str?accentFromStr(e.input_str,state.style):''} <span class="dim">${r.kind==='edit'?'修正':'新規'}</span></div>
+    render:r=>{const e=r.entry||{};return`<div><span class="st-${esc(r.status)}">[${esc(r.status)}]</span> ${r.kind==='bulk'?`<b>一括 ${(r.entries||[]).length}件</b> <span class="dim">${esc((r.entries||[]).slice(0,5).map(x=>x.word).join('、'))}…</span>`:`<b>${esc(e.word)}</b> ${e.input_str?accentFromStr(e.input_str,state.style):''} <span class="dim">${r.kind==='edit'?'修正':'新規'}</span>`}</div>
     <div class="dim" style="font-size:12px">出典: ${esc(r.source)}${r.note?' / '+esc(r.note):''}${admin?` / ${esc(r.name||r.email)}`:''}${r.reason?` / 却下理由: ${esc(r.reason)}`:''}</div>`},
     keys:{
       y:admin?approve:null,n:admin?reject:null,
@@ -590,12 +722,25 @@ function openRequests(){
 }
 async function approve(r){
   if(r.status!=='pending')return toast('処理済みです');
-  const id=r.kind==='edit'&&r.targetId?r.targetId:newId();
-  const e=norm({...r.entry,id,source:r.entry?.source||r.source});if(!e)return toast('申請内容が不正です');
   try{
-    const{doc,writeBatch,serverTimestamp}=FB.m,b=writeBatch(FB.db);
-    b.set(doc(FB.db,'entries',id),{...toDoc(e),approvedFrom:r.id,updatedAt:serverTimestamp(),updatedBy:FB.user.uid});
-    b.update(doc(FB.db,'requests',r.id),{status:'approved',reviewedBy:FB.user.uid,reviewedAt:serverTimestamp()});
+    const{doc,writeBatch,serverTimestamp}=FB.m;
+    const stamp=()=>({updatedAt:serverTimestamp(),updatedBy:FB.user.uid});
+    const markDone=b=>b.update(doc(FB.db,'requests',r.id),{status:'approved',reviewedBy:FB.user.uid,reviewedAt:serverTimestamp()});
+    if(r.kind==='bulk'){
+      const list=(r.entries||[]).map(x=>norm({...x,id:newId(),source:x.source||r.source})).filter(Boolean);
+      if(!list.length)return toast('申請内容が不正です');
+      for(let i=0;i<list.length;i+=400){
+        const b=writeBatch(FB.db),part=list.slice(i,i+400);
+        part.forEach(e=>b.set(doc(FB.db,'entries',e.id),{...toDoc(e),approvedFrom:r.id,...stamp()}));
+        if(i+400>=list.length)markDone(b);
+        await b.commit();
+      }
+      return toast(`${list.length} 件を承認しました`);
+    }
+    const id=r.kind==='edit'&&r.targetId?r.targetId:newId();
+    const e=norm({...r.entry,id,source:r.entry?.source||r.source});if(!e)return toast('申請内容が不正です');
+    const b=writeBatch(FB.db);
+    b.set(doc(FB.db,'entries',id),{...toDoc(e),approvedFrom:r.id,...stamp()});markDone(b);
     await b.commit();toast(`「${e.word}」を承認しました`);
   }catch(err){console.error(err);toast('承認に失敗: '+(err.code||err.message))}
 }
@@ -624,7 +769,7 @@ async function importJSON(file){
 }
 
 /* ---------- ブロック画面（タイムアウト / キック / BAN / IP BAN） ---------- */
-const BLOCK_IMAGE_URL='';   // 自前の画像URLを使いたい場合はここに入れる（空なら内蔵SVG）
+const BLOCK_IMAGE_URL=window.JAPACCENT_BLOCK_IMAGE_URL||'';   // firebase-config.js で指定（空なら内蔵SVG）
 const BLOCK_META={
   timeout:{title:'タイムアウト中',color:'#e5c07b',label:'TIME OUT',msg:'連続操作（スパム）を検知しました。しばらくお待ちください。'},
   kick:{title:'キックされました',color:'#61afef',label:'KICK',msg:'セッションを終了しました。落ち着いてから再ログインしてください。'},
@@ -934,11 +1079,19 @@ document.addEventListener('keydown',ev=>{
     if(ev.key==='Escape'){ev.preventDefault();return closeModal()}
     if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();return primarySubmit()}
     if((ev.key==='s'||ev.key==='S')&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();return role()==='guest'?saveLocal():(!$('#b_local').hidden&&saveLocal())}
-    if(ev.key==='Enter'&&t.tagName==='INPUT'){
+    if(ev.key==='Enter'&&!ev.shiftKey&&(t.tagName==='INPUT'||t.id==='f_hist')){
       ev.preventDefault();
       const i=FIELDS.indexOf(t.id);
       if(i>=0&&i<FIELDS.length-1)$('#'+FIELDS[i+1]).focus();else primarySubmit();
     }
+    return;
+  }
+  if(!$('#bmodal').hidden){
+    if(ev.isComposing||ev.keyCode===229)return;
+    if(ev.key==='Escape'){ev.preventDefault();return closeBulk()}
+    if(ev.key==='Enter'&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();return bulkSave('primary')}
+    if((ev.key==='s'||ev.key==='S')&&(ev.ctrlKey||ev.metaKey)){ev.preventDefault();return bulkSave('local')}
+    if(ev.key==='Enter'&&t.id==='b_source'){ev.preventDefault();$('#b_text').focus()}
     return;
   }
   // --- パネル ---
@@ -977,6 +1130,7 @@ document.addEventListener('keydown',ev=>{
     case't':setStyle(state.style==='old'?'new':'old');break;
     case'r':openRequests();break;
     case'n':openAnnouncements();break;
+    case'A':ev.preventDefault();openBulk();break;
     case'm':if(FB.isAdmin)openMod();break;
     case':':ev.preventDefault();openCmd();break;
     case'u':openHistory();break;
@@ -1018,6 +1172,13 @@ $('#pClose').addEventListener('click',closePanel);
 $('#modal').addEventListener('mousedown',e=>{if(e.target.id==='modal')closeModal()});
 $('#panel').addEventListener('mousedown',e=>{if(e.target.id==='panel')closePanel()});
 $('#bHelp').addEventListener('click',openHelp);
+$('#bBulk').addEventListener('click',openBulk);
+$('#b_text').addEventListener('input',bulkPreview);
+$('#bb_cancel').addEventListener('click',closeBulk);
+$('#bb_primary').addEventListener('click',()=>bulkSave('primary'));
+$('#bb_local').addEventListener('click',()=>bulkSave('local'));
+$('#bmodal').addEventListener('mousedown',e=>{if(e.target.id==='bmodal')closeBulk()});
+$('#optFlat').addEventListener('change',e=>{state.flatMark=e.target.checked;lsSet('flatMark',e.target.checked?'1':'0');renderOut();renderList()});
 $('#bTerms').addEventListener('click',openTerms);
 $('#bAnn').addEventListener('click',openAnnouncements);
 $('#bMod').addEventListener('click',openMod);
@@ -1045,7 +1206,7 @@ $('#user').addEventListener('click',()=>{
 (async function boot(){
   $('#src').value=lsGet('src')??'男の子が箸で飴を食べた。';
   document.querySelector(`input[name=style][value=${state.style}]`).checked=true;
-  $('#optWord').checked=state.showWord;$('#optKana').checked=state.kana;
+  $('#optWord').checked=state.showWord;$('#optFlat').checked=state.flatMark;$('#optKana').checked=state.kana;
   await DB.open();
   local=(await DB.all('local')).map(norm).filter(Boolean);
   try{
