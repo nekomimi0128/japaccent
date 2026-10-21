@@ -35,11 +35,12 @@
 ## 2. リポジトリに何を置くか
 
 「リポジトリ」＝ GitHub 上の**ファイル置き場（フォルダ）**のことです。
-次の **7 つのファイルを、フォルダに入れずそのまま一番上（ルート）** に置きます。
+次の **8 つのファイルを、フォルダに入れずそのまま一番上（ルート）** に置きます。
 
 | ファイル | 何のため？ | 置き場所 |
 |---|---|---|
-| `index.html` | サイト本体（画面もプログラムも全部入り） | ルート |
+| `index.html` | サイト本体（画面もプログラムも全部入り）。**更新のときはこれだけ差し替えればOK** | ルート |
+| `firebase-config.js` | **あなたのFirebaseの接続情報**（自分の値を書く。ここだけは差し替えない） | ルート |
 | `dictionary.json` | 公開辞書のデータ（誰でも見られる・使える） | ルート |
 | `firestore.rules` | データベースの「鍵のルール」（後でFirebaseに貼る。置いておくと記録になる） | ルート |
 | `README.md` | 利用者向けの説明 | ルート |
@@ -47,7 +48,7 @@
 | `LICENSE` | コードのライセンス（GPL-3.0） | ルート |
 | `LICENSE-DATA` | アクセントのデータのライセンス（WTFPL） | ルート |
 
-> ⚠ `index.html` と `dictionary.json` は**必ずルート**に。フォルダの中に入れると動きません。
+> ⚠ `index.html`・`firebase-config.js`・`dictionary.json` は**必ずルート**に。フォルダの中に入れると動きません。
 > （`dictionary.json` が `https://ユーザー名.github.io/リポジトリ名/dictionary.json` で取れる、というのが「みんなが使える」の正体です）
 
 ---
@@ -63,7 +64,7 @@
 
 ### 3-2. ファイルをアップロードする
 1. 作ったリポジトリのページで **uploading an existing file**（または Add file → Upload files）をクリック
-2. パソコンの 7 ファイルを**まとめてドラッグ**
+2. パソコンの 8 ファイルを**まとめてドラッグ**
 3. 下の **Commit changes** を押す
 
 ### 3-3. Pages を有効にする
@@ -95,20 +96,22 @@
 > 💡 この `apiKey` は**公開されても大丈夫**です（パスワードではなく「どのプロジェクトか」の名札）。
 > 守っているのは、あとで貼る「ルール」です。
 
-### 4-2. 接続情報を index.html に貼る
-1. GitHub のリポジトリで `index.html` を開く → 右上の **✏️（鉛筆）** で編集
-2. 次の場所（ファイルの上の方、`<script>` の直後あたり）を探す:
+### 4-2. 接続情報を firebase-config.js に貼る
+接続情報は **`index.html` ではなく `firebase-config.js`** に書きます。こうしておくと、あとで `index.html` が新しくなっても、**差し替えるだけで済みます**（接続情報を書き直さなくてOK）。
+
+1. GitHub のリポジトリで `firebase-config.js` を開く → 右上の **✏️（鉛筆）** で編集
+2. 次の部分を探す:
 
 ```js
-const FIREBASE_CONFIG = {
+window.JAPACCENT_FIREBASE = {
   apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
+  authDomain: "japacsent.firebaseapp.com",
+  projectId: "japacsent",
   appId: "YOUR_APP_ID"
 };
 ```
 
-3. `YOUR_...` の部分を、さっきコピーした値に書き換える（`"` は消さない）
+3. `YOUR_API_KEY` と `YOUR_APP_ID` を、さっきコピーした値に書き換える。`authDomain` と `projectId` も、**自分のプロジェクトの値**になっているか確認する（`"` は消さない）
 4. 右上 **Commit changes…** → **Commit changes**
 5. 1〜2 分待つ（Pages が更新されます）
 
@@ -184,6 +187,14 @@ const FIREBASE_CONFIG = {
 ---
 
 ## 9. 日常の運用
+
+### Japaccent. を新しいバージョンに更新する
+1. 新しい `index.html` を用意する
+2. GitHub のリポジトリのトップで **Add file → Upload files** → `index.html` だけを同じ名前でドラッグ → **Commit changes**
+3. 1〜2分待って、`Ctrl+Shift+R` で再読み込み
+
+`firebase-config.js`・`dictionary.json` はそのままでOKです（上書きしないこと）。
+ただし更新のお知らせに「`firestore.rules` が変わりました」とあるときだけ、**ルール（6-2）を貼り直して「公開」** してください。
 
 ### 申請を承認する
 1. `r`（または「申請」ボタン）→ `j`/`k` で選ぶ
