@@ -2,10 +2,10 @@
 //    index.html を新しいものに差し替えても、このファイルはそのまま使えます（触らなくてOK）。
 // apiKey と appId は Firebase の「プロジェクトの設定 → マイアプリ」に出ている値です。
 window.JAPACCENT_FIREBASE = {
-  apiKey: "YOUR_API_KEY",
+ apiKey: "AIzaSyCeeUPyk7DcAn6zaXvLQp8DcxaKs3qBqE0",
   authDomain: "japacsent.firebaseapp.com",
   projectId: "japacsent",
-  appId: "YOUR_APP_ID"
+  appId: "1:315610612190:web:7c9a1ce9aa83e42f909d4f",
 };
 
 // （任意）BAN・タイムアウト画面に出す画像のURL。空なら内蔵の画像を使います。
