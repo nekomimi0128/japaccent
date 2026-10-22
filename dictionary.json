@@ -1492,5 +1492,529 @@
     "old_accent_history": {},
     "source": "NHK日本語発音アクセント新辞典 2023 p.2",
     "note": ""
+  },
+  {
+    "id": "umvivowcr62at",
+    "word": "あいしゅう",
+    "variants": [
+      "哀愁"
+    ],
+    "reading": "アイシュー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイシュー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrfl5k",
+    "word": "あいしょう",
+    "variants": [
+      "愛称"
+    ],
+    "reading": "アイショー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイショー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrif7g",
+    "word": "アイシーレコーダー",
+    "variants": [
+      "あいしーれこーだー",
+      "ICレコーダー"
+    ],
+    "reading": "アイシーレコーダー",
+    "accent_type": "drop",
+    "drop_position": 6,
+    "input_str": "アイシーレコ／ーダー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrookh",
+    "word": "アイシャドー",
+    "variants": [
+      "あいしゃどー",
+      "アイシャドウ",
+      "あいしゃどう"
+    ],
+    "reading": "アイシャドー",
+    "accent_type": "drop",
+    "drop_position": 3,
+    "input_str": "アイシャ／ドー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrq52u",
+    "word": "あいしょう",
+    "variants": [
+      "愛唱",
+      "愛誦"
+    ],
+    "reading": "アイショー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイショー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "《☓ 誦》",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrrvul",
+    "word": "あいさつ",
+    "variants": [
+      "挨拶"
+    ],
+    "reading": "アイサツ",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イサツ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrsb2q",
+    "word": "あいじ",
+    "variants": [
+      "愛児"
+    ],
+    "reading": "アイジ",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イジ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcru6s5",
+    "word": "あいさいか",
+    "variants": [
+      "愛妻家"
+    ],
+    "reading": "アイサイカ",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイサイカ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrv2uk",
+    "word": "あいし",
+    "variants": [
+      "哀史"
+    ],
+    "reading": "アイシ",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イシ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrvd8g",
+    "word": "アイシー",
+    "variants": [
+      "あいしー",
+      "IC"
+    ],
+    "reading": "アイシー",
+    "accent_type": "drop",
+    "drop_position": 3,
+    "input_str": "アイシ／ー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcrztno",
+    "word": "あいしゃ",
+    "variants": [
+      "愛車"
+    ],
+    "reading": "アイシャ",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイシャ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcs4gqb",
+    "word": "アイスキャンデー",
+    "variants": [
+      "あいすきゃんでー"
+    ],
+    "reading": "アイスキャンデー",
+    "accent_type": "drop",
+    "drop_position": 4,
+    "input_str": "アイ(ス)キャ／ンデー",
+    "devoiced": [
+      3
+    ],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "(アイスキャンディーの許容)",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcs6x23",
+    "word": "アイススケート",
+    "variants": [
+      "あいすすけーと"
+    ],
+    "reading": "アイススケート",
+    "accent_type": "drop",
+    "drop_position": 5,
+    "input_str": "アイス(ス)ケ／ート",
+    "devoiced": [
+      4
+    ],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcs8kjn",
+    "word": "アイスショー",
+    "variants": [
+      "あいすしょー"
+    ],
+    "reading": "アイスショー",
+    "accent_type": "drop",
+    "drop_position": 4,
+    "input_str": "アイスショ／ー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcs8tqs",
+    "word": "あいじるし",
+    "variants": [
+      "合い印",
+      "合印"
+    ],
+    "reading": "アイジルシ",
+    "accent_type": "drop",
+    "drop_position": 3,
+    "input_str": "アイジ／ルシ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsaapm",
+    "word": "アイスキャンディー",
+    "variants": [
+      "あいすきゃんでぃー"
+    ],
+    "reading": "アイスキャンディー",
+    "accent_type": "drop",
+    "drop_position": 4,
+    "input_str": "アイ(ス)キャ／ンディー",
+    "devoiced": [
+      3
+    ],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsgjd4",
+    "word": "あいしょう",
+    "variants": [
+      "相性"
+    ],
+    "reading": "アイショー",
+    "accent_type": "drop",
+    "drop_position": 3,
+    "input_str": "アイショ／ー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsgm7i",
+    "word": "あいず",
+    "variants": [
+      "合図"
+    ],
+    "reading": "アイズ",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イズ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsp05c",
+    "word": "あいしょう",
+    "variants": [
+      "愛しょう",
+      "愛妾"
+    ],
+    "reading": "アイショー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイショー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "《☓ 妾》",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsqr18",
+    "word": "あいじょう",
+    "variants": [
+      "愛嬢"
+    ],
+    "reading": "アイジョー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイジョー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsr013",
+    "word": "あいじん",
+    "variants": [
+      "愛人"
+    ],
+    "reading": "アイジン",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイジン",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcstvsq",
+    "word": "アイス",
+    "variants": [
+      "あいす"
+    ],
+    "reading": "アイス",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イス",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsukd1",
+    "word": "あいじょう",
+    "variants": [
+      "愛情"
+    ],
+    "reading": "アイジョー",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイジョー",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsv2yu",
+    "word": "あいす",
+    "variants": [
+      "愛す"
+    ],
+    "reading": "アイス",
+    "accent_type": "drop",
+    "drop_position": 1,
+    "input_str": "ア／イス",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsy1mf",
+    "word": "アイシング",
+    "variants": [
+      "あいしんぐ"
+    ],
+    "reading": "アイシング",
+    "accent_type": "flat",
+    "drop_position": 0,
+    "input_str": "アイシング゜",
+    "devoiced": [],
+    "nasal": [
+      5
+    ],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsybjt",
+    "word": "アイスコーヒー",
+    "variants": [
+      "あいすこーひー"
+    ],
+    "reading": "アイスコーヒー",
+    "accent_type": "drop",
+    "drop_position": 6,
+    "input_str": "アイ(ス)コーヒ／ー",
+    "devoiced": [
+      3
+    ],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsym0b",
+    "word": "あいしょうか",
+    "variants": [
+      "愛唱歌",
+      "愛誦歌"
+    ],
+    "reading": "アイショーカ",
+    "accent_type": "drop",
+    "drop_position": 3,
+    "input_str": "アイショ／ーカ",
+    "devoiced": [],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
+  },
+  {
+    "id": "umvivowcsz40w",
+    "word": "アイスクリーム",
+    "variants": [
+      "あいすくりーむ"
+    ],
+    "reading": "アイスクリーム",
+    "accent_type": "drop",
+    "drop_position": 5,
+    "input_str": "アイ(ス)クリ／ーム",
+    "devoiced": [
+      3
+    ],
+    "nasal": [],
+    "allowed_accents": [],
+    "homophones_note": "",
+    "old_accent_history": {},
+    "source": "NHK日本語発音アクセント新辞典 2023 p.2",
+    "note": ""
   }
 ]
