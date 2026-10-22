@@ -55,9 +55,10 @@ h2.t{font:600 12px var(--mono);color:var(--dim);margin:0;letter-spacing:.04em}
 .acc{display:inline-block;white-space:nowrap}
 .new .m{position:relative}
 .fm{color:var(--red);margin-left:1px}
+.sep{margin:0 .12em}
 .m.dv,.m.ns{position:relative}
-.m.dv::after{content:'';position:absolute;left:50%;bottom:-.3em;width:.34em;height:.34em;margin-left:-.17em;border:1.5px solid currentColor;border-radius:50%;opacity:.85;pointer-events:none}
-.m.ns::before{content:'';position:absolute;right:-.06em;top:.28em;width:.26em;height:.26em;border:1.5px solid currentColor;border-radius:50%;pointer-events:none}
+.m.dv::after{content:'';position:absolute;left:50%;top:50%;width:1.2em;height:1.2em;transform:translate(-50%,-50%);border:1.5px solid currentColor;border-radius:50%;opacity:.9;pointer-events:none}
+.m.ns::before{content:'゜';position:absolute;left:.58em;top:-.02em;font-size:.95em;line-height:1;font-weight:700;pointer-events:none}
 .old .m{position:relative;display:inline-block;border-top:2px solid transparent;line-height:1.35;padding:0 1px}
 .old .m.h{border-top-color:var(--acc)}
 .old .m.d{border-right:2px solid var(--acc)}
@@ -66,7 +67,7 @@ h2.t{font:600 12px var(--mono);color:var(--dim);margin:0;letter-spacing:.04em}
 
 #q{font-family:var(--mono)}
 #list{flex:1;overflow:auto;border:1px solid var(--line);border-radius:6px;background:var(--bg2);min-height:120px}
-.row{display:grid;grid-template-columns:minmax(80px,1fr) minmax(110px,1.4fr) 50px 56px;gap:8px;padding:5px 10px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;font-size:16px;line-height:1.7}
+.row{display:grid;grid-template-columns:minmax(80px,1fr) minmax(110px,1.4fr) 92px 56px;gap:8px;padding:5px 10px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;font-size:16px;line-height:1.7}
 .row.sel{background:#2a3140;box-shadow:inset 3px 0 var(--grn)}
 .row .k{font:12px var(--mono);color:var(--dim)}
 .badge{font:11px var(--mono);border-radius:3px;padding:0 5px;text-align:center;border:1px solid var(--line);color:var(--dim)}
@@ -183,7 +184,7 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
     <label>表記 <span class="hint">表記ゆれはカンマ区切りで全部（先頭が代表）例: 男の子、男のこ、おとこのこ</span>
       <input id="f_word" type="text" placeholder="男の子、男のこ、おとこのこ">
     </label>
-    <label>アクセント入力 <span class="hint">／下がり目 · 記号なし=平板 · [3]や3で番号指定 · (キ)無声化 · ガ゜鼻濁音（ガ* でも可）</span>
+    <label>アクセント入力 <span class="hint">／下がり目 · 記号なし=平板 · [3]や3で番号指定 · (キ)無声化 · カ゜鼻濁音（カ* でも可） · ・で区切って各部分に1つずつ · 語末の￣（^ でも可）で「平板も可」を併記</span>
       <input id="f_input" type="text" placeholder="オトコ／ノコ" spellcheck="false">
     </label>
     <div id="f_prev"></div>
@@ -220,7 +221,7 @@ kbd{font:12px var(--mono);background:var(--bg3);border:1px solid var(--line);bor
       <input id="b_source" type="text">
     </label>
     <label>1行1語 <span class="hint">「表記 , 記法 , メモ(任意)」。区切りは Tab・カンマ・| ・空白。表記ゆれは ; 区切り。記法は <b>ハシ,2</b> のように番号でもOK。# で始まる行は無視</span>
-      <textarea id="b_text" rows="10" class="mono" spellcheck="false" placeholder="男の子;男のこ;おとこのこ,オトコ／ノコ&#10;箸,ハシ,1,食事の道具&#10;橋,ハシ[2]&#10;好き,(ス)キ／&#10;鏡,カガ゜ミ／"></textarea>
+      <textarea id="b_text" rows="10" class="mono" spellcheck="false" placeholder="男の子;男のこ;おとこのこ,オトコ／ノコ&#10;箸,ハシ,1,食事の道具&#10;橋,ハシ[2]&#10;好き,(ス)キ／&#10;鏡,カカ゜ミ／"></textarea>
     </label>
     <div id="b_prev" style="background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:8px 12px;font-size:16px;line-height:1.9;min-height:44px"></div>
     <p class="dim" style="font-size:11px;margin:0">申請・公開登録したデータは WTFPL で公開されます。出典のない／他者の著作物の丸写しは不可。</p>
@@ -284,10 +285,10 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');
 const TO_VOICED={カ:'ガ',キ:'ギ',ク:'グ',ケ:'ゲ',コ:'ゴ'},NASAL_BASE={ガ:'カ',ギ:'キ',グ:'ク',ゲ:'ケ',ゴ:'コ'};
 const CIRCLED='⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
 const moraText=(m,nasal)=>nasal?(NASAL_BASE[m[0]]||m[0])+m.slice(1):m;   // 鼻濁音は ガ→カ に直して、CSSで右上に小さな○を付ける（フォント差を避けるため）
-/* 記法:  ／=下がり目  (キ)=母音無声化  ガ゜(または ガ* / カ゜)=鼻濁音  末尾の [3] や 3 = アクセント型の番号（0=平板） */
-function parseInput(raw){
-  let s=String(raw||'').replace(SLASH_RE,'／').replace(/\s+/g,'');
-  s=s.replace(/[（〔]/g,'(').replace(/[）〕]/g,')').replace(/[゚ﾟ°*＊゜]/g,'゜');
+/* 記法:  ／=下がり目  (キ)=母音無声化  カ゜（カ* でも可。ガ゜も可）=鼻濁音  末尾の [3] や 3 = アクセント型の番号（0=平板） */
+function parsePart(s){
+  let also=false;const fmk=s.match(/[￣¯‾^＾~～]+$/);
+  if(fmk){also=true;s=s.slice(0,-fmk[0].length)}
   let num=null;
   const cm=s.match(/[⓪①-⑳]$/);
   if(cm){num=CIRCLED.indexOf(cm[0]);s=s.slice(0,-1)}
@@ -297,7 +298,7 @@ function parseInput(raw){
   for(const c of s){
     if(c==='('){if(dev)return{error:'( が入れ子です'};dev=true;continue}
     if(c===')'){if(!dev)return{error:') が多すぎます'};dev=false;continue}
-    if(c==='／'){if(slashAt>=0)return{error:'／ は1つだけ'};if(!ms.length)return{error:'／ の前に1音以上必要です'};slashAt=ms.length;justSlash=true;continue}
+    if(c==='／'){if(slashAt>=0)return{error:'／ は1か所に1つだけ（・で区切った各部分に1つずつ）'};if(!ms.length)return{error:'／ の前に1音以上必要です'};slashAt=ms.length;justSlash=true;continue}
     if(c==='゜'){
       const l=ms[ms.length-1];if(!l||justSlash)return{error:'゜（鼻濁音）の前にカ行・ガ行の音が必要です'};
       const f=l.t[0];
@@ -313,24 +314,43 @@ function parseInput(raw){
   if(num!==null&&slashAt>=0)return{error:'／ と番号は同時に使えません'};
   let drop=0;
   if(slashAt>=0)drop=slashAt;else if(num!==null){if(num>ms.length)return{error:`番号は ${ms.length} 以下にしてください`};drop=num}
-  const r={reading:ms.map(m=>m.t).join(''),accent_type:drop?'drop':'flat',drop_position:drop,
-    devoiced:ms.map((m,i)=>m.dev?i+1:0).filter(Boolean),nasal:ms.map((m,i)=>m.nasal?i+1:0).filter(Boolean)};
+  return{ms,drop,also:also&&drop>0};
+}
+/* 記法:  ／=下がり目  (キ)=母音無声化  カ゜（カ* でも可。ガ゜も可）=鼻濁音  末尾の [3] や 3 = アクセント型の番号（0=平板）
+          ・=アクセント句の区切り（・で区切った各部分に、それぞれ下がり目1つ。例 ニホ／ン・チュウゴク）  */
+function parseInput(raw){
+  let s=String(raw||'').replace(SLASH_RE,'／').replace(/\s+/g,'');
+  s=s.replace(/[（〔]/g,'(').replace(/[）〕]/g,')').replace(/[゚ﾟ°*＊゜]/g,'゜');
+  const segs=s.split(/[・･·]/);
+  if(segs.length>4)return{error:'・ は3つまでです'};
+  const parts=[];
+  for(const seg of segs){const r=parsePart(seg);if(r.error)return r;parts.push(r)}
+  let off=0;const devoiced=[],nasal=[];
+  parts.forEach(p=>{p.ms.forEach((m,i)=>{if(m.dev)devoiced.push(off+i+1);if(m.nasal)nasal.push(off+i+1)});off+=p.ms.length});
+  const drops=parts.map(p=>p.drop);
+  const r={reading:parts.map(p=>p.ms.map(m=>m.t).join('')).join('・'),accent_type:parts.length>1?'multi':(drops[0]?'drop':'flat'),
+    drop_position:drops[0],drop_positions:drops,also_flat:parts.map(p=>!!p.also),devoiced,nasal};
   r.input_str=buildInput(r);
   return r;
 }
 function buildInput(r){
-  const ms=moras(r.reading),dv=new Set(r.devoiced||[]),ns=new Set(r.nasal||[]);let out='',open=false;
-  ms.forEach((m,i)=>{
-    const d=dv.has(i+1);
-    if(d&&!open){out+='(';open=true}
-    out+=m+(ns.has(i+1)?'゜':'');
-    if(open&&(!dv.has(i+2)||i+1===r.drop_position)){out+=')';open=false}
-    if(r.accent_type==='drop'&&i+1===r.drop_position)out+='／';
-  });
-  return out;
+  const parts=r.reading.split('・'),dp=r.drop_positions||[r.drop_position||0];
+  const dv=new Set(r.devoiced||[]),ns=new Set(r.nasal||[]);let g=0;
+  return parts.map((pt,pi)=>{
+    const ms=moras(pt),d=dp[pi]||0;let out='',open=false;
+    ms.forEach((m,i)=>{
+      g++;
+      if(dv.has(g)&&!open){out+='(';open=true}
+      out+=ns.has(g)?(NASAL_BASE[m[0]]||m[0])+m.slice(1)+'゜':m;
+      if(open&&(!(i+1<ms.length&&dv.has(g+1))||i+1===d)){out+=')';open=false}
+      if(d&&i+1===d)out+='／';
+    });
+    if(d&&(r.also_flat||[])[pi])out+='￣';
+    return out;
+  }).join('・');
 }
 const insertSlash=(reading,n)=>{const m=moras(reading);return m.slice(0,n).join('')+'／'+m.slice(n).join('')};
-const kindOf=e=>{if(e.accent_type!=='drop')return'平板';const n=moras(e.reading).length;return e.drop_position===1?'頭高':e.drop_position===n?'尾高':'中高'};
+const kindOf=e=>{if(e.accent_type==='multi')return'複合';if(e.accent_type!=='drop')return'平板';const n=moras(e.reading).length;return(e.drop_position===1?'頭高':e.drop_position===n?'尾高':'中高')+((e.also_flat||[])[0]?'+平板':'')};
 
 /* 辞書エントリの正規化 */
 function norm(raw){
@@ -346,7 +366,7 @@ function norm(raw){
   const variants=[...new Set((Array.isArray(raw.variants)?raw.variants:[]).map(x=>String(x).trim()).filter(x=>x&&x!==word))];
   return{
     id:String(raw.id||word+'|'+p.reading).replace(/\//g,'_'),
-    word,variants,reading:p.reading,accent_type:p.accent_type,drop_position:p.drop_position,input_str:p.input_str,
+    word,variants,reading:p.reading,accent_type:p.accent_type,drop_position:p.drop_position,drop_positions:p.drop_positions,also_flat:p.also_flat,input_str:p.input_str,
     devoiced:p.devoiced,nasal:p.nasal,
     allowed_accents:fix(raw.allowed_accents),
     homophones_note:String(raw.homophones_note||''),
@@ -358,21 +378,27 @@ function norm(raw){
 const toDoc=e=>({word:e.word,variants:e.variants||[],reading:e.reading,accent_type:e.accent_type,drop_position:e.drop_position,input_str:e.input_str,allowed_accents:e.allowed_accents,homophones_note:e.homophones_note,old_accent_history:e.old_accent_history,source:e.source,note:e.note});
 
 /* ---------- アクセント描画 ---------- */
+const dropLabel=e=>e.accent_type==='multi'?e.drop_positions.map((d,i)=>d+((e.also_flat||[])[i]?'/0':'')).join('・'):((e.drop_position||'')+((e.also_flat||[])[0]?'/0':''));
 function accentHTML(e,style=state.style){
-  const ms=moras(e.reading),d=e.drop_position,drop=e.accent_type==='drop';
-  const dv=new Set(e.devoiced||[]),ns=new Set(e.nasal||[]);
-  const mk=(i,extra='')=>`<span class="m${dv.has(i+1)?' dv':''}${ns.has(i+1)?' ns':''}${extra}">${esc(moraText(ms[i],ns.has(i+1)))}</span>`;
-  if(style==='new'){
-    let h='';
-    ms.forEach((m,i)=>{h+=mk(i);if(drop&&i+1===d)h+='<b class="dm">＼</b>'});
-    if(!drop&&state.flatMark)h+='<span class="fm">￣</span>';
-    return`<span class="acc new">${h}</span>`;
-  }
-  const hi=new Set();
-  if(!drop){for(let i=1;i<ms.length;i++)hi.add(i)}
-  else if(d===1)hi.add(0);
-  else for(let i=1;i<d;i++)hi.add(i);
-  return'<span class="acc old">'+ms.map((m,i)=>mk(i,`${hi.has(i)?' h':''}${drop&&i===d-1?' d':''}`)).join('')+'</span>';
+  const parts=e.reading.split('・'),dp=e.drop_positions||[e.drop_position||0];
+  const dv=new Set(e.devoiced||[]),ns=new Set(e.nasal||[]),af=e.also_flat||[];let g=0;
+  const mk=(m,gi,extra='')=>`<span class="m${dv.has(gi)?' dv':''}${ns.has(gi)?' ns':''}${extra}">${esc(moraText(m,ns.has(gi)))}</span>`;
+  const html=parts.map((pt,pi)=>{
+    const ms=moras(pt),d=dp[pi]||0,drop=d>0;let h='';
+    if(style==='new'){
+      ms.forEach((m,i)=>{g++;h+=mk(m,g);if(drop&&i+1===d)h+='<b class="dm">＼</b>'});
+      if((!drop&&state.flatMark)||(drop&&af[pi]))h+='<span class="fm">￣</span>';
+      return h;
+    }
+    const hi=new Set();
+    if(!drop){for(let i=1;i<ms.length;i++)hi.add(i)}
+    else if(d===1)hi.add(0);
+    else for(let i=1;i<d;i++)hi.add(i);
+    ms.forEach((m,i)=>{g++;h+=mk(m,g,`${hi.has(i)?' h':''}${drop&&i===d-1?' d':''}`)});
+    if(drop&&af[pi])h+='<span class="fm">￣</span>';
+    return h;
+  }).join('<span class="sep">・</span>');
+  return`<span class="acc ${style==='new'?'new':'old'}">${html}</span>`;
 }
 function accentFromStr(str,style){const p=parseInput(str);return p.error?`<span class="dim">${esc(str)}</span>`:accentHTML(p,style)}
 
@@ -436,7 +462,7 @@ function renderOut(){
     const e=hit.c[(choice.get(hit.k)||0)%hit.c.length];
     const chunk=text.substr(i,hit.L);
     const cap=state.showWord&&toHira(chunk)!==toHira(e.reading)?`<small class="cap">${esc(chunk)}</small>`:'';
-    const tip=`${e.word} [${kindOf(e)}${e.drop_position||''}]${hit.c.length>1?`  (${hit.c.length}候補: クリックで切替)`:''}${e.homophones_note?' / '+e.homophones_note:''}`;
+    const tip=`${e.word} [${kindOf(e)}${dropLabel(e)}]${hit.c.length>1?`  (${hit.c.length}候補: クリックで切替)`:''}${e.homophones_note?' / '+e.homophones_note:''}`;
     html+=`<span class="tok${hit.c.length>1?' multi':''}" data-k="${esc(hit.k)}" title="${esc(tip)}">${accentHTML(e)}${cap}</span>`;
     i+=hit.L;hits++;
   }
@@ -453,7 +479,7 @@ function applyFilter(){
 function renderList(){
   applyFilter();
   const LIM=600,rows=filtered.slice(0,LIM).map(e=>
-    `<div class="row${e.id===state.selId?' sel':''}" data-id="${esc(e.id)}"><span>${esc(e.word)}${e.variants.length?` <span class="dim" style="font-size:11px">+${e.variants.length}</span>`:''}</span><span>${accentHTML(e)}</span><span class="k">${kindOf(e)}${e.drop_position||''}</span><span class="badge ${e._layer}">${e._layer}</span></div>`);
+    `<div class="row${e.id===state.selId?' sel':''}" data-id="${esc(e.id)}"><span>${esc(e.word)}${e.variants.length?` <span class="dim" style="font-size:11px">+${e.variants.length}</span>`:''}</span><span>${accentHTML(e)}</span><span class="k">${kindOf(e)}${dropLabel(e)}</span><span class="badge ${e._layer}">${e._layer}</span></div>`);
   $('#list').innerHTML=rows.join('')+(filtered.length>LIM?`<div class="row dim">… 他 ${filtered.length-LIM} 件（検索で絞り込み）</div>`:'')||'<div class="row dim">該当なし — a で追加</div>';
   $('#stCount').textContent=`${filtered.length}/${merged.length} 語`;
   const sel=$('#list .row.sel');if(sel)sel.scrollIntoView({block:'nearest'});
@@ -465,7 +491,7 @@ function renderDetail(){
   if(!e){d.innerHTML='<span class="dim">単語が選択されていません</span>';return}
   const hist=Object.entries(e.old_accent_history).sort().map(([y,v])=>`<div><span class="yr">${esc(y)}</span>${accentFromStr(v,'old')}</div>`).join('');
   const allowed=e.allowed_accents.map(v=>accentFromStr(v,state.style)).join('、 ');
-  d.innerHTML=`<div class="big">${esc(e.word)}　<span class="dim" style="font-size:13px">${esc(kindOf(e))}${e.drop_position?` [${e.drop_position}]`:' [0]'}</span></div>
+  d.innerHTML=`<div class="big">${esc(e.word)}　<span class="dim" style="font-size:13px">${esc(kindOf(e))} [${dropLabel(e)||0}]</span></div>
   <div class="kv">
     <span>旧方式</span><span class="big">${accentHTML(e,'old')}</span>
     <span>新方式</span><span class="big">${accentHTML(e,'new')}</span>
@@ -520,14 +546,14 @@ function openModal(mode,target,prefillWord){
 function closeModal(){$('#modal').hidden=true;modal.target=null;document.activeElement?.blur();idleMode()}
 function updatePreview(){
   const v=$('#f_input').value,box=$('#f_prev');
-  if(!v){box.innerHTML='<span class="dim" style="font-size:13px">例: オトコ／ノコ · サクラ（平板） · (ス)キ／（無声化） · カガ゜ミ／（鼻濁音） · ハシ[2]（番号）</span>';return}
+  if(!v){box.innerHTML='<span class="dim" style="font-size:13px">例: オトコ／ノコ · サクラ（平板） · (ス)キ／（無声化） · カカ゜ミ／（鼻濁音） · ハシ[2]（番号）</span>';return}
   const p=parseInput(v);
   if(p.error){box.innerHTML=`<span class="err">${esc(p.error)}</span>`;return}
-  box.innerHTML=`${accentHTML(p,'old')}　${accentHTML(p,'new')}<span class="meta">${kindOf(p)} · ${moras(p.reading).length}音 · drop=${p.drop_position}${p.devoiced.length?` · 無声化${p.devoiced.join(',')}`:''}${p.nasal.length?` · 鼻濁音${p.nasal.join(',')}`:''}</span>`;
+  box.innerHTML=`${accentHTML(p,'old')}　${accentHTML(p,'new')}<span class="meta">${kindOf(p)} · ${moras(p.reading.replace(/・/g,'')).length}音 · drop=${p.drop_positions.join('・')}${p.devoiced.length?` · 無声化${p.devoiced.join(',')}`:''}${p.nasal.length?` · 鼻濁音${p.nasal.join(',')}`:''}</span>`;
 }
 function fixInputField(ev){
   if(ev.isComposing)return;
-  const el=ev.target,v=el.value,f=toKata(v.replace(SLASH_RE,'／').replace(/[゚ﾟ°*＊]/g,'゜'));
+  const el=ev.target,v=el.value,f=toKata(v.replace(SLASH_RE,'／').replace(/[゚ﾟ°*＊]/g,'゜').replace(/[¯‾^＾~～]/g,'￣'));
   if(f!==v){const s=el.selectionStart;el.value=f;try{el.setSelectionRange(s,s)}catch{}}
   updatePreview();
 }
@@ -694,7 +720,7 @@ function openHelp(){
   <tr><td><kbd>:</kbd></td><td>コマンドライン（<span class="mono">:help</span> <span class="mono">:set style=new</span> …何か隠れているかも）</td></tr>
   <tr><td><kbd>Esc</kbd></td><td>閉じる / ノーマルモードへ（検索は2回で解除）</td></tr>
   <tr><td colspan="2" class="dim">モーダル内: <kbd>Enter</kbd>次の欄 · <kbd>Ctrl+Enter</kbd>確定 · <kbd>Ctrl+S</kbd>ローカル保存</td></tr>
-  <tr><td colspan="2" class="dim">記法: <span class="mono">オトコ／ノコ</span>（／=下がり目） · <span class="mono">サクラ</span>（平板） · <span class="mono">ハシ[2]</span>（番号） · <span class="mono">(ス)キ／</span>（無声化） · <span class="mono">カガ゜ミ／</span>（鼻濁音。ガ* でも可）</td></tr></table>`});
+  <tr><td colspan="2" class="dim">記法: <span class="mono">オトコ／ノコ</span>（／=下がり目） · <span class="mono">サクラ</span>（平板） · <span class="mono">ハシ[2]</span>（番号） · <span class="mono">(ス)キ／</span>（無声化） · <span class="mono">カカ゜ミ／</span>（鼻濁音。カ* でも可） · <span class="mono">ニホ／ン・チュウゴク</span>（・で区切り、各部分に下がり目1つずつ） · <span class="mono">アイ(ス)ク／リーム￣</span>（＼と平板￣を両方付ける。^ でも可）</td></tr></table>`});
 }
 async function openHistory(){
   const h=(await DB.all('history')).sort((a,b)=>b.n-a.n).slice(0,200);
